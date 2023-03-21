@@ -10,7 +10,24 @@
         ?> -->
         <?php
         $dtfc_plugin = new datafeedCustomPlugin();
-        $dtfc_plugin->dtfcFetchNetworks();
+        $dtfc = $dtfc_plugin->dtfcFetchNetworks();
+
+        // $by_group = $dtfc_plugin->group_by("group",$dtfc->networks);
+
+        $by_group = "<pre>"; print_r($by_group);
+
+        foreach($dtfc->networks as $network):
         ?>
+
+            <div>
+                <div class="meta">
+                    <span><?= $network->name ?></span>
+                    <span class="status">
+                        <span> Networks</span>
+                    </span>
+                </div>
+            </div>
+
+        <?php endforeach; ?>
     </form>
 </div>

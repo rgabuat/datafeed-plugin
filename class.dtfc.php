@@ -199,8 +199,7 @@ class datafeedCustomPlugin
         {
             // Get JSON response body using wp_remote_retrieve_body()
             $data = json_decode(wp_remote_retrieve_body($response));
-
-            echo '<pre>'; print_r($data);
+            return $data;
         }
     }
 
@@ -231,6 +230,23 @@ class datafeedCustomPlugin
 
             echo '<pre>'; print_r($data);
         }
+    }
+
+    function group_by($key,$data)
+    {
+        $result = array();
+        foreach($data as $val)
+        {
+            if(array_key_exists($key,$val))
+            {
+                $result[$val[$key]][] = $val;
+            }
+            else 
+            {
+                $result[""][] = $val;
+            }
+        }
+        return $result;
     }
 
     function activate()
