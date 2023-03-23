@@ -1,0 +1,60 @@
+#dfrapi_networks .group {
+    background-color: #FCFCFC;
+}
+
+#dfrapi_networks .group {
+    margin-bottom: 5px;
+    line-height: 34px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: 4px 5px;
+    background-size: 30px 30px;
+    padding: 2px;
+    border-left: 4px #FFF solid;
+    border-top: 0 solid;
+    border-right: 0 solid;
+    border-bottom: 0 solid;
+}
+
+#dfrapi_networks .group .networks {
+    margin-left: 36px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: auto;
+}
+
+/* network tables css*/
+table.fixed {
+    table-layout: fixed;
+}
+
+
+#dfrapi_networks .group .networks .networks_table th {
+    padding: 5px;
+}
+
+#dfrapi_networks .group .networks .networks_table th.checkbox_head {
+    width: 20px !important;
+}
+
+
+#dfrapi_networks .group .networks .networks_table tr.network td.network_name {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+#dfrapi_networks .group .networks .networks_table tr.network td {
+    vertical-align: middle;
+}
+
+#dfrapi_networks .group .networks .networks_table tr.network td.network_name .network_info {
+    color: gray;
+    font-size: 90%;
+    font-weight: normal;
+}
+
+#dfrapi_networks .group .networks .networks_table tr.network td.network_name .network_info {
+    color: gray;
+    font-size: 90%;
+    font-weight: normal;
+}

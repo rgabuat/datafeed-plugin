@@ -1,33 +1,73 @@
-<div class="wrap">
+<div class="wrap" id="dfrapi_networks">
     <h1>Select Network</h1>
     <?php settings_errors(); ?>
 
-    <form method="post" action="options.php">
-        <!-- <php 
-            settings_fields('dtfc_options_group'); //get settings field id from setSettings function
-            do_settings_sections('datafeedCustom_plugin'); //set section slug from setSections function
-            submit_button();
-        ?> -->
+    <form method="post">
         <?php
         $dtfc_plugin = new datafeedCustomPlugin();
         $dtfc = $dtfc_plugin->dtfcFetchNetworks();
+        $datas = $dtfc_plugin->fetchNetworks();
+        $grouped = $dtfc_plugin->array_group_by($dtfc->networks,"group");
 
-        // $by_group = $dtfc_plugin->group_by("group",$dtfc->networks);
-
-        $by_group = "<pre>"; print_r($by_group);
-
-        foreach($dtfc->networks as $network):
+        foreach($datas as $data):
+            foreach($grouped as $key => $value) :
         ?>
+            
 
-            <div>
+            <div class="group" id="group_<?= $key ?>">
                 <div class="meta">
-                    <span><?= $network->name ?></span>
-                    <span class="status">
-                        <span> Networks</span>
-                    </span>
+                    <span><?= $key ?></span>
+                    <input type="hidden" id="network_group" class="network_group" name="network_group[]" value="<?= $key?>">
+                </div>
+                <div class="networks">
+                    <table class="wp-list-table widefat fixed networks_table" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th class="checkbox_head"> &nbsp; </th>
+                                <th class="networks_head">Network</th>
+                                <th class="type_head">Type</th>
+                                <th class="aid_head">Affiliate ID</th>
+                                <th class="tid_head">Tracking ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($value as $val):?>
+                            
+                            <tr class="network" id="network_id_<?= $val->_id; ?>">
+                                <!-- <td class="network"><= $val->_id ?></td> -->
+                                <td class="network_checkbox">
+                                    <input type="checkbox" <?= $data->nid == $val->_id ? 'checked' : ''  ?> id="nid_<?= $val->_id?>" class="check_network" name="nid[]" value="<?= $val->_id?>">
+                                </td>
+                                <td class="network_name">
+                                    <label for="nid_<?= $val->_id ?>">
+                                        <?= $val->name ?>
+                                        <input type="hidden" id="network_name" class="network_name" name="network_name[]" value="<?= $val->name?>">
+                                        <input type="hidden" id="network_merch_count" class="network_merch_count" name="network_merch_count[]" value="<?= $val->merchant_count?>">
+                                        <input type="hidden" id="network_prod_count" class="network_prod_count" name="network_prod_count[]" value="<?= $val->product_count?>">
+                                        <div class="network_info">
+                                            <span class="num_merchants"><?= $val->merchant_count ?> merchants  
+                                                <span class="sep">/</span>
+                                                <span class="num_products"><?= number_format($val->product_count) ?> products</span>
+                                            </span>
+                                        </div>
+                                    </label>
+                                </td>
+                                <input type="hidden" id="network_type" class="network_type" name="network_type[]" value="<?= $val->type?>">
+                                <td class="network_type"><?= $val->type ?></td>
+                                <td class="aid_input">
+                                    <input type="text" name="dtfc_naid[]" value="<?= $data->nid == $val->_id ? $data->affiliate_id : '' ?>" class="aid_input_field">
+                                </td>
+                                <td class="tid_input">
+                                    <input type="text" name="dtfc_ntid[]" value="<?= $data->nid == $val->_id ? $data->tracking_id : '' ?>" class="tid_input_field">
+                                </td>
+                            </tr>
+                            <?php endforeach;?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-        <?php endforeach; ?>
+        <?php endforeach;?>
+        <?php endforeach;?>
+        <p class="submit"><input type="submit" name="save_networks" id="submit" class="button button-primary" value="Save Changes"></p>
     </form>
 </div>

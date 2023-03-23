@@ -153,6 +153,7 @@ class datafeedCustomPlugin
 
     //call backs
     
+    
     function dtfcOptionsGroup($input)
     {
         return $input;
@@ -226,28 +227,126 @@ class datafeedCustomPlugin
         else 
         {
             // Get JSON response body using wp_remote_retrieve_body()
-            $data = json_decode(wp_remote_retrieve_body($response));
+            $data = json_decode(wp_remote_retrieve_body($response),true);
 
             echo '<pre>'; print_r($data);
         }
     }
 
-    function group_by($key,$data)
+    function dtfcTblCreate()
     {
-        $result = array();
-        foreach($data as $val)
+        global $wpdb; //Call for wordpress database
+        
+        $dtfcTble = $wpdb->prefix."dtfc_networks";
+
+        $dtfcQuery = "CREATE TABLE $dtfcTble(
+                id int(10) NOT NULL AUTO_INCREMENT,
+                nid VARCHAR(30) DEFAULT '',
+                network_type VARCHAR(100) DEFAULT '',
+                network_name VARCHAR(100) DEFAULT '',
+                network_group VARCHAR(100) DEFAULT '',
+                merchant_count VARCHAR(100) DEFAULT '',
+                product_count VARCHAR(100) DEFAULT '',
+                affiliate_id VARCHAR(100) DEFAULT '',
+                tracking_id VARCHAR(100) DEFAULT '',
+                PRIMARY KEY (id)
+        )";
+  
+        require_once(ABSPATH ."wp-admin/includes/upgrade.php");
+        dbDelta($dtfcQuery);
+            
+    }
+
+    function insertNetworks()
+    {
+        global $wpdb;
+        $dtfcTble = $wpdb->prefix."dtfc_networks";
+        if(isset($_POST['save_networks']))
         {
-            if(array_key_exists($key,$val))
+        $dtfcNid = $_POST['nid'];
+        $dtfcNetworkType = $_POST['network_type'];
+        $dtfcNetworkGroup = $_POST['network_group'];
+        $dtfcNetworkName = $_POST['network_name'];
+        $dtfcMerchantCount = $_POST['network_merch_count'];
+        $dtfcProductCount = $_POST['network_prod_count'];
+        $dtfcNaid = $_POST['dtfc_naid'];
+        $dtfcNtid = $_POST['dtfc_ntid'];
+
+        
+            $count = count($_POST['nid']);
+            for($i=0;$i<$count;$i++)
             {
-                $result[$val[$key]][] = $val;
+                $wpdb->insert($dtfcTble,
+                array(
+                    'nid' => $dtfcNid[$i],
+                    'network_type' => $dtfcNetworkType[$i],
+                    'network_name' => $dtfcNetworkName[$i],
+                    'network_group' => $dtfcNetworkGroup[$i],
+                    'merchant_count' => $dtfcMerchantCount[$i],
+                    'product_count' => $dtfcProductCount[$i],
+                    'affiliate_id' => $dtfcNaid[$i],
+                    'tracking_id' => $dtfcNtid[$i],
+                    )
+                );
+            } 
+        }
+
+    }
+
+    function fetchNetworks()
+    {
+        global $wpdb;
+        $dtfcTble = $wpdb->prefix."dtfc_networks";
+        $results = $wpdb->get_results("SELECT * FROM $dtfcTble");
+
+        return $results;
+    }
+    
+
+    function array_group_by(array $array, $key)
+    {
+        if (!is_string($key) && !is_int($key) && !is_float($key) && !is_callable($key) ) {
+            trigger_error('array_group_by(): The key should be a string, an integer, or a callback', E_USER_ERROR);
+            return null;
+        }
+
+        $func = (!is_string($key) && is_callable($key) ? $key : null);
+        $_key = $key;
+
+        // Load the new array, splitting by the target key
+        $grouped = [];
+        foreach ($array as $value) {
+            $key = null;
+
+            if (is_callable($func)) {
+                $key = call_user_func($func, $value);
+            } elseif (is_object($value) && property_exists($value, $_key)) {
+                $key = $value->{$_key};
+            } elseif (isset($value[$_key])) {
+                $key = $value[$_key];
             }
-            else 
-            {
-                $result[""][] = $val;
+
+            if ($key === null) {
+                continue;
+            }
+
+            $grouped[$key][] = $value;
+        }
+
+        // Recursively build a nested grouping if more parameters are supplied
+        // Each grouped array value is grouped according to the next sequential key
+        if (func_num_args() > 2) {
+            $args = func_get_args();
+
+            foreach ($grouped as $key => $value) {
+                $params = array_merge([ $value ], array_slice($args, 2, func_num_args()));
+                $grouped[$key] = call_user_func_array('array_group_by', $params);
             }
         }
-        return $result;
+
+        return $grouped;
     }
+    
 
     function activate()
     {
@@ -266,13 +365,14 @@ class datafeedCustomPlugin
 
     function enqueue()
     {
-        wp_enqueue_style('pluginstyle',plugins_url('/assets/style.css',__FILE__),array(''),false);
-        wp_enqueue_style('pluginstyle',plugins_url('/assets/script.css',__FILE__),array(''),false);
+        wp_enqueue_style('pluginstyle',plugins_url('/assets/style.css',__FILE__));
+        wp_enqueue_script('pluginscript',plugins_url('/assets/script.js',__FILE__));
     }
 }
 
 
 $dtfc_plugin = new datafeedCustomPlugin();
 $dtfc_plugin->register();
-
+$dtfc_plugin->dtfcTblCreate();
+$dtfc_plugin->insertNetworks();
 ?>
