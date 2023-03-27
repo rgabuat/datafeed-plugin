@@ -8,18 +8,38 @@
         $dtfc = $dtfc_plugin->dtfcFetchNetworks();
         $datas = $dtfc_plugin->fetchNetworks();
         $grouped = $dtfc_plugin->array_group_by($dtfc->networks,"group");
+       
 
-        foreach($datas as $data):
             foreach($grouped as $key => $value) :
+               
         ?>
             
 
-            <div class="group" id="group_<?= $key ?>">
+            <div class="group " id="group_<?= clean($key) ?>">
                 <div class="meta">
                     <span><?= $key ?></span>
+                    <?php  
+                    $network_cnt = 0;
+                    $merchant_cnt = 0;
+                    $product_cnt = 0; 
+
+                    foreach($value as $cnt)
+                    {
+                        // $network_cnt += $cnt;
+                        $merchant_cnt += $cnt->merchant_count;
+                        $product_cnt += $cnt->product_count;
+                    }
+
+                    ?>
+                    <span> <?= $network_cnt ?> network</span>
+                    <span  class="sep">/</span>
+                    <span> <?= $merchant_cnt ?> merchants</span>
+                    <span class="sep">/</span>
+                    <span> <?= number_format($product_cnt) ?> products </span>
+
                     <input type="hidden" id="network_group" class="network_group" name="network_group[]" value="<?= $key?>">
                 </div>
-                <div class="networks">
+                <div class="networks hidden">
                     <table class="wp-list-table widefat fixed networks_table" cellspacing="0">
                         <thead>
                             <tr>
@@ -36,7 +56,7 @@
                             <tr class="network" id="network_id_<?= $val->_id; ?>">
                                 <!-- <td class="network"><= $val->_id ?></td> -->
                                 <td class="network_checkbox">
-                                    <input type="checkbox" <?= $data->nid == $val->_id ? 'checked' : ''  ?> id="nid_<?= $val->_id?>" class="check_network" name="nid[]" value="<?= $val->_id?>">
+                                    <input type="checkbox" id="nid_<?= $val->_id?>" class="check_network" name="nid[]" value="<?= $val->_id?>">
                                 </td>
                                 <td class="network_name">
                                     <label for="nid_<?= $val->_id ?>">
@@ -55,10 +75,10 @@
                                 <input type="hidden" id="network_type" class="network_type" name="network_type[]" value="<?= $val->type?>">
                                 <td class="network_type"><?= $val->type ?></td>
                                 <td class="aid_input">
-                                    <input type="text" name="dtfc_naid[]" value="<?= $data->nid == $val->_id ? $data->affiliate_id : '' ?>" class="aid_input_field">
+                                    <input type="text" name="dtfc_naid[]" value="" class="aid_input_field">
                                 </td>
                                 <td class="tid_input">
-                                    <input type="text" name="dtfc_ntid[]" value="<?= $data->nid == $val->_id ? $data->tracking_id : '' ?>" class="tid_input_field">
+                                    <input type="text" name="dtfc_ntid[]" value="" class="tid_input_field">
                                 </td>
                             </tr>
                             <?php endforeach;?>
@@ -66,7 +86,6 @@
                     </table>
                 </div>
             </div>
-        <?php endforeach;?>
         <?php endforeach;?>
         <p class="submit"><input type="submit" name="save_networks" id="submit" class="button button-primary" value="Save Changes"></p>
     </form>

@@ -210,7 +210,8 @@ class datafeedCustomPlugin
 
         $prop = json_encode([
             'aid'  => $value = esc_attr(get_option('access_id')),
-            'akey' => $value = esc_attr(get_option('access_key'))
+            'akey' => $value = esc_attr(get_option('access_key')),
+            'source_ids' => array(15)
         ]);
 
         $args = array(
@@ -227,9 +228,9 @@ class datafeedCustomPlugin
         else 
         {
             // Get JSON response body using wp_remote_retrieve_body()
-            $data = json_decode(wp_remote_retrieve_body($response),true);
-
-            echo '<pre>'; print_r($data);
+            $data = json_decode(wp_remote_retrieve_body($response));
+            
+            return $data;
         }
     }
 
