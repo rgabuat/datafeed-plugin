@@ -1,10 +1,9 @@
 console.log('test');
 
 jQuery(document).ready(function(){
-    jQuery('.group').on('click',function(){
-
+    jQuery('.meta').on('click',function(e){
+        e.preventDefault();
         var id = jQuery(this).attr('id');
-        jQuery('#'+id).find('.networks').toggle('slow');
-    
+        jQuery('#'+id).next().closest('div').toggle('slow');
     })
 })

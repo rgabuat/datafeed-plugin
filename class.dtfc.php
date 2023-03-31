@@ -43,6 +43,9 @@ class datafeedCustomPlugin
 
     public function add_admin_pages()
     {
+        $aid = esc_attr(get_option('access_id'));
+        $aik = esc_attr(get_option('access_key'));
+
         add_menu_page('DatafeedCustom Plugin',
                         'DatafeedCustom',
                         'manage_options',
@@ -50,20 +53,25 @@ class datafeedCustomPlugin
                         array($this,'admin_index'),
                         'dashicons-store',110
                     );
-        add_submenu_page("datafeedCustom_plugin",
-                        'Networks',
-                        'Networks',
-                        'manage_options',
-                        'dtfc-networks',
-                        array($this,'network_page'),
-                    );
-        add_submenu_page("datafeedCustom_plugin",
-                        'Merchants',
-                        'Merchants',
-                        'manage_options',
-                        'dtfc-merchants',
-                        array($this,'merchant_page'),
-                    );
+        //check if access key and access id is provided
+        if(isset($aid) && $aid != '' && isset($aik) && $aik != '')
+        {
+            add_submenu_page("datafeedCustom_plugin",
+            'Networks',
+            'Networks',
+            'manage_options',
+            'dtfc-networks',
+            array($this,'network_page'),
+            );
+            add_submenu_page("datafeedCustom_plugin",
+                'Merchants',
+                'Merchants',
+                'manage_options',
+                'dtfc-merchants',
+                array($this,'merchant_page'),
+            );
+        }
+        
     }
 
     public function admin_index()
@@ -264,6 +272,7 @@ class datafeedCustomPlugin
         $dtfcTble = $wpdb->prefix."dtfc_networks";
         if(isset($_POST['save_networks']))
         {
+
         $dtfcNid = $_POST['nid'];
         $dtfcNetworkType = $_POST['network_type'];
         $dtfcNetworkGroup = $_POST['network_group'];
@@ -273,23 +282,41 @@ class datafeedCustomPlugin
         $dtfcNaid = $_POST['dtfc_naid'];
         $dtfcNtid = $_POST['dtfc_ntid'];
 
-        
-            $count = count($_POST['nid']);
+
+        // echo '<pre>';
+        // print_r($_POST['network_group']);
+        // exit;
+
+
+
+        $count = count($_POST['nid']);
+
+            // print_r($count);
+            // exit;
+
+        if($_POST['nid'] != FALSE)
+        {
             for($i=0;$i<$count;$i++)
             {
-                $wpdb->insert($dtfcTble,
-                array(
-                    'nid' => $dtfcNid[$i],
-                    'network_type' => $dtfcNetworkType[$i],
-                    'network_name' => $dtfcNetworkName[$i],
-                    'network_group' => $dtfcNetworkGroup[$i],
-                    'merchant_count' => $dtfcMerchantCount[$i],
-                    'product_count' => $dtfcProductCount[$i],
-                    'affiliate_id' => $dtfcNaid[$i],
-                    'tracking_id' => $dtfcNtid[$i],
-                    )
-                );
+                if($dtfcNid[$i] != 0)
+                {
+                    $wpdb->insert($dtfcTble,
+                    array(
+                        'nid' => $dtfcNid[$i],
+                        'network_type' => $dtfcNetworkType[$i],
+                        'network_name' => $dtfcNetworkName[$i],
+                        'network_group' => $dtfcNetworkGroup[$i],
+                        'merchant_count' => $dtfcMerchantCount[$i],
+                        'product_count' => $dtfcProductCount[$i],
+                        'affiliate_id' => $dtfcNaid[$i],
+                        'tracking_id' => $dtfcNtid[$i],
+                        )
+                    );
+                }
+                
             } 
+        }
+            
         }
 
     }
