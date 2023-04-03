@@ -32,8 +32,6 @@
                     <span> <?= $merchant_cnt ?> merchants</span>
                     <span class="sep">/</span>
                     <span> <?= number_format($product_cnt) ?> products </span>
-
-                    <input type="hidden" id="network_group_<?= $key?>" class="network_group" name="network_group[]" value="<?= $key?>">
                 </div>
                 <div class="networks hidden networks_<?= clean($key) ?>">
                     <table class="wp-list-table widefat fixed networks_table" cellspacing="0">
@@ -68,15 +66,16 @@
                             
                             <tr class="network" id="network_id_<?= $val->_id; ?>">
                                 <!-- <td class="network"><= $val->_id ?></td> -->
+                                <input type="hidden" id="network_group_<?= $key?>" class="network_group" name="network_group[ids][<?= $val->_id?>]" value="<?= $key?>">
                                 <td class="network_checkbox">
-                                    <input type="checkbox" id="nid_<?= $val->_id?>" class="check_network" name="nid[]"  value="<?= $val->_id?>">
+                                    <input type="checkbox" id="nid_<?= $val->_id?>" class="check_network" name="nid[ids][<?= $val->_id?>]"  value="<?= $val->_id?>">
                                 </td>
-                                <td class="network_name">
+                                <td class="net_name">
                                     <label for="nid_<?= $val->_id ?>">
                                         <?= $val->name ?>
-                                        <input type="hidden" id="network_name_<?= $val->_id?>" class="network_name" name="network_name[]" value="<?= $val->name?>">
-                                        <input type="hidden" id="network_merch_count_<?= $val->_id?>" class="network_merch_count" name="network_merch_count[]" value="<?= $val->merchant_count?>">
-                                        <input type="hidden" id="network_prod_count_<?= $val->_id?>" class="network_prod_count" name="network_prod_count[]" value="<?= $val->product_count?>">
+                                        <input type="hidden" id="net_name_<?= $val->_id?>" class="net_name" name="network_name[ids][<?= $val->_id?>]" value="<?= $val->name?>">
+                                        <input type="hidden" id="net_merch_count_<?= $val->_id?>" class="net_merch_count" name="network_merch_count[ids][<?= $val->_id?>]" value="<?= $val->merchant_count?>">
+                                        <input type="hidden" id="net_prod_count_<?= $val->_id?>" class="net_prod_count" name="network_prod_count[ids][<?= $val->_id?>]" value="<?= $val->product_count?>">
                                         <div class="network_info">
                                             <span class="num_merchants"><?= $val->merchant_count ?> merchants  
                                                 <span class="sep">/</span>
@@ -85,13 +84,13 @@
                                         </div>
                                     </label>
                                 </td>
-                                <input type="hidden" id="network_type_<?= $val->_id?>" class="network_type" name="network_type[]" value="<?= $val->type?>">
+                                <input type="hidden" id="network_type_<?= $val->_id?>" class="net_type" name="network_type[ids][<?= $val->_id?>]" value="<?= $val->type?>">
                                 <td class="network_type"><?= $val->type ?></td>
                                 <td class="aid_input">
-                                    <input type="text" id="aid_<?= $val->_id?>" name="dtfc_naid[]" value="" class="aid_input_field">
+                                    <input type="text" id="aid_<?= $val->_id?>" name="dtfc_naid[ids][<?= $val->_id?>]" value="" class="aid_input_field" >
                                 </td>
                                 <td class="tid_input">
-                                    <input type="text" id="tid_<?= $val->_id?>" name="dtfc_ntid[]" value="" class="tid_input_field">
+                                    <input type="text" id="tid_<?= $val->_id?>" name="dtfc_ntid[ids][<?= $val->_id?>]" value="" class="tid_input_field" >
                                 </td>
                             </tr>
                             <?php endforeach;?>

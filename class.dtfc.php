@@ -161,7 +161,6 @@ class datafeedCustomPlugin
 
     //call backs
     
-    
     function dtfcOptionsGroup($input)
     {
         return $input;
@@ -272,53 +271,61 @@ class datafeedCustomPlugin
         $dtfcTble = $wpdb->prefix."dtfc_networks";
         if(isset($_POST['save_networks']))
         {
-
-        $dtfcNid = $_POST['nid'];
-        $dtfcNetworkType = $_POST['network_type'];
-        $dtfcNetworkGroup = $_POST['network_group'];
-        $dtfcNetworkName = $_POST['network_name'];
-        $dtfcMerchantCount = $_POST['network_merch_count'];
-        $dtfcProductCount = $_POST['network_prod_count'];
-        $dtfcNaid = $_POST['dtfc_naid'];
-        $dtfcNtid = $_POST['dtfc_ntid'];
-
-
-        // echo '<pre>';
-        // print_r($_POST['network_group']);
-        // exit;
-
-
-
-        $count = count($_POST['nid']);
-
-            // print_r($count);
-            // exit;
-
-        if($_POST['nid'] != FALSE)
-        {
-            for($i=0;$i<$count;$i++)
+            $checked_array = $_POST['nid']['ids'];
+            $network_names = $_POST['network_name']['ids'];
+         
+            foreach($network_names as $k => $v)
             {
-                if($dtfcNid[$i] != 0)
+                if(in_array($k,$checked_array))
                 {
-                    $wpdb->insert($dtfcTble,
-                    array(
-                        'nid' => $dtfcNid[$i],
-                        'network_type' => $dtfcNetworkType[$i],
-                        'network_name' => $dtfcNetworkName[$i],
-                        'network_group' => $dtfcNetworkGroup[$i],
-                        'merchant_count' => $dtfcMerchantCount[$i],
-                        'product_count' => $dtfcProductCount[$i],
-                        'affiliate_id' => $dtfcNaid[$i],
-                        'tracking_id' => $dtfcNtid[$i],
-                        )
-                    );
-                }
-                
-            } 
-        }
-            
-        }
+                    $count = count($checked_array);
+                    if($_POST['nid']['ids'][$k] != FALSE)
+                    {
+                        $net_nid = $_POST['nid']['ids'][$k];
+                        $data = [
+                            'nid' => $net_nid,
+                            'network_type' => $_POST['network_type']['ids'][$k],
+                            'network_name' => $_POST['network_name']['ids'][$k],
+                            'network_group' => $_POST['network_group']['ids'][$k],
+                            'merchant_count' => $_POST['network_merch_count']['ids'][$k],
+                            'product_count' => $_POST['network_prod_count']['ids'][$k],
+                            'affiliate_id' => $_POST['dtfc_naid']['ids'][$k],
+                            'tracking_id' => $_POST['dtfc_ntid']['ids'][$k],
+                        ];
 
+                        for($i=0;$i<$count;$i++)
+                        {
+                            if($net_nid != 0)
+                            {
+                                $id = $wpdb->get_row("SELECT * FROM $dtfcTble WHERE nid = $net_nid");
+                                if(!$id)
+                                {
+                                    $wpdb->insert($dtfcTble,$data);
+                                }
+                            }
+                        } 
+                    }
+                }
+            }
+
+            if ($wpdb->last_error === '') 
+            {
+                // Insertion was successful
+                echo '<script>alert("Data inserted successfully")</script>';
+            } 
+            else 
+            {
+            // Insertion failed
+                echo 'Error inserting data: ' . $wpdb->last_error;
+            }
+        }
+    }
+
+    function updateNetworksTable()
+    {
+        global $wpdb;
+        $data_to_update = array();
+        $id = $wpdb->get_row("SELECT * FROM");
     }
 
     function fetchNetworks()
