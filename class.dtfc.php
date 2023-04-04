@@ -333,7 +333,7 @@ class datafeedCustomPlugin
         global $wpdb;
         $dtfcTble = $wpdb->prefix."dtfc_networks";
         $results = $wpdb->get_results("SELECT * FROM $dtfcTble");
-
+        
         return $results;
     }
     

@@ -7,6 +7,12 @@
         $dtfc_plugin = new datafeedCustomPlugin();
         $dtfc = $dtfc_plugin->dtfcFetchNetworks();
         $datas = $dtfc_plugin->fetchNetworks();
+
+        // echo '<pre>';
+        
+        
+        // print_r($datas);
+        // exit;
         $grouped = $dtfc_plugin->array_group_by($dtfc->networks,"group");
             foreach($grouped as $key => $value) :
         ?>
@@ -46,29 +52,29 @@
                         </thead>
                         <tbody>
                             <?php 
-
-                            // $net_id = array();
-                            // $afid = array();
-                            // $tid = array();
-                            // foreach($datas as $data)
-                            // {
-                            //     $net_props[] = array('n_id' => $data->nid,'afid' => $data->affiliate_id);
-                            // }
-
-                            // echo '<pre>';print_r($net_props);
-                            // exit;
+                           
+                            $net_id = array();
+                            $afid = array();
+                            $tid = array();
+                            foreach($datas as $data)
+                            {
+                                $net_id[] = $data->nid;
+                                $afid[$data->nid] = array('afid'=>$data->affiliate_id);
+                                $trkid[$data->nid] = array('tid'=>$data->tracking_id);
+                            }
 
                             foreach($value as $val):
-                            // $checked   = ( in_array( $val->_id, (array) $net_id ) ) ? ' checked="checked"' : '';
-                            
-                            // $afid = ( in_array( $val->_id, (array) $afid ) ) ? ' checked="checked"' : '';
+
+                            $checked   = ( in_array( $val->_id, (array) $net_id ) ) ? ' checked="checked"' : '';
+                            $aid = ( array_key_exists( $val->_id, (array) $afid ) ) ? $afid[$val->_id]['afid'] : '';
+                            $tid = ( array_key_exists( $val->_id, (array) $afid ) ) ? $trkid[$val->_id]['tid'] : '';
                             ?>
                             
                             <tr class="network" id="network_id_<?= $val->_id; ?>">
                                 <!-- <td class="network"><= $val->_id ?></td> -->
                                 <input type="hidden" id="network_group_<?= $key?>" class="network_group" name="network_group[ids][<?= $val->_id?>]" value="<?= $key?>">
                                 <td class="network_checkbox">
-                                    <input type="checkbox" id="nid_<?= $val->_id?>" class="check_network" name="nid[ids][<?= $val->_id?>]"  value="<?= $val->_id?>">
+                                    <input type="checkbox" id="nid_<?= $val->_id?>" class="check_network" name="nid[ids][<?= $val->_id?>]" <?= $checked ?>  value="<?= $val->_id?>">
                                 </td>
                                 <td class="net_name">
                                     <label for="nid_<?= $val->_id ?>">
@@ -87,10 +93,10 @@
                                 <input type="hidden" id="network_type_<?= $val->_id?>" class="net_type" name="network_type[ids][<?= $val->_id?>]" value="<?= $val->type?>">
                                 <td class="network_type"><?= $val->type ?></td>
                                 <td class="aid_input">
-                                    <input type="text" id="aid_<?= $val->_id?>" name="dtfc_naid[ids][<?= $val->_id?>]" value="" class="aid_input_field" >
+                                    <input type="text" id="aid_<?= $val->_id?>" name="dtfc_naid[ids][<?= $val->_id?>]" value="<?= $aid ?>" class="aid_input_field" >
                                 </td>
                                 <td class="tid_input">
-                                    <input type="text" id="tid_<?= $val->_id?>" name="dtfc_ntid[ids][<?= $val->_id?>]" value="" class="tid_input_field" >
+                                    <input type="text" id="tid_<?= $val->_id?>" name="dtfc_ntid[ids][<?= $val->_id?>]" value="<?= $tid ?>" class="tid_input_field" >
                                 </td>
                             </tr>
                             <?php endforeach;?>
