@@ -61,15 +61,17 @@ class datafeedCustomPlugin
             'Networks',
             'manage_options',
             'dtfc-networks',
-            array($this,'network_page'),
-            );
-            add_submenu_page("datafeedCustom_plugin",
+            array($this,'network_page'),);
+
+            if($this->fetchNetworks() != '')
+            {
+                add_submenu_page("datafeedCustom_plugin",
                 'Merchants',
                 'Merchants',
                 'manage_options',
                 'dtfc-merchants',
-                array($this,'merchant_page'),
-            );
+                array($this,'merchant_page'),);
+            }
         }
         
     }
@@ -211,36 +213,6 @@ class datafeedCustomPlugin
         }
     }
 
-    function dftcFetchMerchants()
-    {
-        $api_url = "https://api.datafeedr.com/merchants";
-
-        $prop = json_encode([
-            'aid'  => $value = esc_attr(get_option('access_id')),
-            'akey' => $value = esc_attr(get_option('access_key')),
-            'source_ids' => array(15)
-        ]);
-
-        $args = array(
-            'body' => $prop,
-            'timeout' => 100
-        );
-
-        $response = wp_remote_post($api_url,$args);
-
-        if (is_wp_error($response)) 
-        {
-            return '<p>Error retrieving data from API: ' . $response->get_error_message() . '</p>';
-        }
-        else 
-        {
-            // Get JSON response body using wp_remote_retrieve_body()
-            $data = json_decode(wp_remote_retrieve_body($response));
-            
-            return $data;
-        }
-    }
-
     function dtfcTblCreate()
     {
         global $wpdb; //Call for wordpress database
@@ -335,6 +307,48 @@ class datafeedCustomPlugin
         $results = $wpdb->get_results("SELECT * FROM $dtfcTble");
         
         return $results;
+    }
+
+    function dftcFetchMerchants()
+    {
+        if($this->fetchNetworks() != '')
+        {
+            $sources = [];
+
+            foreach($this->fetchNetworks() as $network)
+            {
+                $sources[] = $network->nid;
+            }
+
+            // print_r($sources);
+            // exit;
+            
+            $api_url = "https://api.datafeedr.com/merchants";
+            $prop = json_encode([
+                'aid'  => $value = esc_attr(get_option('access_id')),
+                'akey' => $value = esc_attr(get_option('access_key')),
+                'source_ids' => $sources
+            ]);
+    
+            $args = array(
+                'body' => $prop,
+                'timeout' => 100
+            );
+    
+            $response = wp_remote_post($api_url,$args);
+    
+            if (is_wp_error($response)) 
+            {
+                return '<p>Error retrieving data from API: ' . $response->get_error_message() . '</p>';
+            }
+            else 
+            {
+                // Get JSON response body using wp_remote_retrieve_body()
+                $data = json_decode(wp_remote_retrieve_body($response));
+                
+                return $data;
+            }
+        }
     }
     
 

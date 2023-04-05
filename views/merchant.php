@@ -10,6 +10,9 @@
             $grouped = $dtfc_plugin->array_group_by($dtfc->merchants,"source");
             $total_product = 0;
             $merchant_cnt = 0;
+
+            // echo '<pre>';
+            // print_r($grouped);
         ?>
 
         <table class="form-table">
@@ -46,14 +49,14 @@
                                         </div>
                                         <div class="dfrapi_pane_content">
                                             <?php
-                                                foreach($merchs as $merch): ?>
-                                                <div class="merchant" style="display:<?= $merch->product_count == 0 ? 'none' : '' ?>">
+                                                foreach($val as $v): ?>
+                                                <div class="merchant" style="display:<?= $v->product_count == 0 ? 'none' : '' ?>">
                                                     <div class="merchant_name">
-                                                        <?= $merch->name ?>
+                                                        <?= $v->name ?>
                                                     </div>
                                                     <div class="merchant_info">
                                                         <span class="num_products">
-                                                         <?= $merch->product_count ?> products
+                                                         <?= $v->product_count ?> products
                                                         </span>
                                                     </div>
                                                 </div>
