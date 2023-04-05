@@ -241,7 +241,7 @@ class datafeedCustomPlugin
     {
         global $wpdb;
         $dtfcTble = $wpdb->prefix."dtfc_networks";
-        if(isset($_POST['save_networks']))
+        if(!empty($_POST['nid']))
         {
             $checked_array = $_POST['nid']['ids'];
             $network_names = $_POST['network_name']['ids'];
