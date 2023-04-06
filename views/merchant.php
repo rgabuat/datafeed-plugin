@@ -2,7 +2,7 @@
     <h1>Select Merchants</h1>
     <?php settings_errors(); ?>
 
-    <form method="post" action="options.php">
+    <form method="post" action="">
         <?php 
             $dtfc_plugin = new datafeedCustomPlugin();
             $dtfc = $dtfc_plugin->dftcFetchMerchants();
@@ -20,25 +20,25 @@
                 <?php 
                 
                     foreach($grouped as $key => $val) : 
-                        foreach($val as $vl)
+                        foreach($val as $k => $vl)
                         {
-                            // $merchant_cnt += $vl[0];
-                            // echo '<pre>'; print_r($vl);
+                            $merchant_cnt += $vl[0];
+                            // echo '<pre>'; print_r($merch);
                             $total_product += $vl->product_count;
                         }
                     ?>
                 <tr>
                     <th class="" style="display:none;">Merchants</th>
-                    <td>
-                        <div class="network">
-                            <div class="meta">
+                    <td style="padding:0px;">
+                        <div class="network network_<?= clean($key) ?>" style="background-color:#ffff">
+                            <div class="meta" id="network_<?= clean($key) ?>">
                                 <span class="name"><?= $key ?></span>
                                 <span class="sep">/</span>
                                 <span><?= $merchant_cnt ?> merchants</span>
                                 <span class="sep">/</span>
                                 <span><?= $total_product ?> products </span>
                             </div>
-                            <div class="merchants">
+                            <div class="merchants hidden network_<?= clean($key) ?>" >
                                 <div class="merchant_actions">
 
                                 </div>
