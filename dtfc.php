@@ -40,8 +40,12 @@ define( 'DTFRC_PLUGIN_BASENAME', basename( dirname( __FILE__ ) ) . '/' . basenam
 define( 'DTFRC_URL', plugins_url( '', DTFRC_PLUGIN_BASENAME ) ); //plugin url
 
 
+
 require_once plugin_dir_path(__FILE__) . 'class.dtfc.php' ;
 require_once plugin_dir_path(__FILE__) . 'functions.php' ;
+
+
+
 
 //activation
 register_activation_hook(__FILE__, array($dtfc_plugin,'activate'));

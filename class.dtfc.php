@@ -15,23 +15,11 @@ class datafeedCustomPlugin
         add_action('admin_menu',array($this,'add_admin_pages'));
         add_action('admin_init',array($this,'registerCustomFields'));
         add_filter("plugin_action_links_".$this->plugin, array($this,'settings_link'));
-    }
 
-    function createApiSettingsTable()
-    {
-        global $wpdb;
-
-        $table_name = $wpdb->prefix.'datafeed_api_custom_settings';
-        $charset_collate = $wpdb->get_charset_collate();
-        $query = "CREATE TABLE $table_name(
-             id mediumint(9) NOT NULL AUTO_INCREMENT,
-            access_id varchar(255)  NULL,
-            access_key varchar(255)  NULL,
-            PRIMARY KEY  (id)
-        ) $charset_collate";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($query);
+        if(wp_next_scheduled('dtfc_update_networks'))
+        {
+            add_action( 'dtfc_update_networks', array($this,'updateNetworksTable' ));
+        }
     }
 
     public function settings_link($links)
@@ -90,7 +78,6 @@ class datafeedCustomPlugin
     {
         require_once plugin_dir_path(__FILE__).'views/merchant.php';
     }
-
 
     public function registerCustomFields()
     {
@@ -217,25 +204,44 @@ class datafeedCustomPlugin
     {
         global $wpdb; //Call for wordpress database
         
-        $dtfcTble = $wpdb->prefix."dtfc_networks";
+        $dtfcTbleNetwork = $wpdb->prefix."dtfc_networks";
+        $dtfcTbleMerchant = $wpdb->prefix."dtfc_merchants";
 
-        $dtfcQuery = "CREATE TABLE $dtfcTble(
-                id int(10) NOT NULL AUTO_INCREMENT,
-                nid VARCHAR(30) DEFAULT '',
-                network_type VARCHAR(100) DEFAULT '',
-                network_name VARCHAR(100) DEFAULT '',
-                network_group VARCHAR(100) DEFAULT '',
-                merchant_count VARCHAR(100) DEFAULT '',
-                product_count VARCHAR(100) DEFAULT '',
-                affiliate_id VARCHAR(100) DEFAULT '',
-                tracking_id VARCHAR(100) DEFAULT '',
-                PRIMARY KEY (id)
-        )";
-  
+        if($wpdb->get_var("SHOW TABLES LIKE '$dtfcTbleNetwork'") != $dtfcTbleNetwork) 
+        {
+            $dtfcQueryNetwork = "CREATE TABLE $dtfcTbleNetwork(
+                    id int(10) NOT NULL AUTO_INCREMENT,
+                    nid VARCHAR(30) DEFAULT '',
+                    network_type VARCHAR(100) DEFAULT '',
+                    network_name VARCHAR(100) DEFAULT '',
+                    network_group VARCHAR(100) DEFAULT '',
+                    merchant_count VARCHAR(100) DEFAULT '',
+                    product_count VARCHAR(100) DEFAULT '',
+                    affiliate_id VARCHAR(100) DEFAULT '',
+                    tracking_id VARCHAR(100) DEFAULT '',
+                    PRIMARY KEY (id)
+            )";
+
+     
         require_once(ABSPATH ."wp-admin/includes/upgrade.php");
-        dbDelta($dtfcQuery);
+        dbDelta($dtfcQueryNetwork);
+        }
+
+        if($wpdb->get_var("SHOW TABLES LIKE '$dtfcTbleMerchant'") != $dtfcTbleMerchant) 
+        {
+            $dtfcQueryMerchant = "CREATE TABLE $dtfcTbleMerchant(
+                    id int(10) NOT NULL AUTO_INCREMENT,
+                    srcid VARCHAR(30) DEFAULT '',
+                    merchant_name VARCHAR(100) DEFAULT '',
+                    product_count VARCHAR(100) DEFAULT '',
+                    PRIMARY KEY (id)
+            )";
+             require_once(ABSPATH ."wp-admin/includes/upgrade.php");
+             dbDelta($dtfcQueryMerchant);
+        }
             
     }
+    
 
     function insertNetworks()
     {
@@ -293,11 +299,84 @@ class datafeedCustomPlugin
         }
     }
 
+    
+    function activate()
+    {
+        if (!wp_next_scheduled('dtfc_update_networks')) 
+        {
+            wp_schedule_event(time(), 'hourly', 'dtfc_update_networks');
+        }
+        flush_rewrite_rules();
+    }
+
+
     function updateNetworksTable()
     {
-        global $wpdb;
-        $data_to_update = array();
-        $id = $wpdb->get_row("SELECT * FROM");
+        if($this->fetchNetworks() != '')
+        {
+            $networks = [];
+            foreach($this->fetchNetworks() as $network)
+            {
+                $networks[] = $network->nid;
+            }
+            $api_url = "https://api.datafeedr.com/networks";
+            $prop = json_encode([
+                'aid'  => $value = esc_attr(get_option('access_id')),
+                'akey' => $value = esc_attr(get_option('access_key')),
+                'fields' => ["merchant_count","product_count"],
+                'source_ids' => $networks
+            ]);
+
+            $args = array(
+                'body' => $prop,
+                'timeout' => 100
+            );
+
+            $response = wp_remote_post($api_url,$args);
+
+            if (is_wp_error($response)) 
+            {
+                return '<p>Error retrieving data from API: ' . $response->get_error_message() . '</p>';
+            }
+            else 
+            {
+                global $wpdb;
+                $dtfcTble = $wpdb->prefix."dtfc_networks";
+                // Get JSON response body using wp_remote_retrieve_body()
+                $network_props = json_decode(wp_remote_retrieve_body($response));
+
+                if($network_props)
+                {
+                    foreach($network_props->networks as $prop)
+                    {
+                        if(in_array($prop->_id,(array) $networks))
+                        {
+                            $update = $wpdb->update(
+                                        $dtfcTble,[
+                                            'merchant_count' => $prop->merchant_count,
+                                            'product_count' => $prop->product_count,
+                                    ],
+                                    [
+                                        'nid' => $prop->_id
+                                    ]);
+                        
+                        }
+                    }   
+
+                    if ($wpdb->last_error === '') 
+                    {
+                        // Insertion was successful
+                        echo '<script>alert("Networks successfully Updated")</script>';
+                    } 
+                    else 
+                    {
+                    // Insertion failed
+                        echo 'Error updating data: ' . $wpdb->last_error;
+                    }
+                }
+                // return $network_props;
+            }
+        }  
     }
 
     function fetchNetworks()
@@ -397,19 +476,24 @@ class datafeedCustomPlugin
     }
     
 
-    function activate()
-    {
-        flush_rewrite_rules();
-    }
+
 
     function deactivate()
     {
+        $timestamp = wp_next_scheduled('dtfc_update_networks');
+        wp_unschedule_event($timestamp, 'dtfc_update_networks');
         flush_rewrite_rules();
     }
 
     function uninstall()
     {
+        global $wpdb;
+        $dtfcTbleNetwork = $wpdb->prefix."dtfc_networks";
+        $dtfcTbleMerchant = $wpdb->prefix."dtfc_merchants";
+        $wpdb->query("DROP TABLE IF EXISTS $dtfcTbleNetwork, $dtfcTbleMerchant");
 
+        // Delete any cached data created by the plugin
+        wp_cache_flush();
     }
 
     function enqueue()
@@ -417,6 +501,7 @@ class datafeedCustomPlugin
         wp_enqueue_style('pluginstyle',plugins_url('/assets/style.css',__FILE__));
         wp_enqueue_script('pluginscript',plugins_url('/assets/script.js',__FILE__));
     }
+
 }
 
 
@@ -424,4 +509,5 @@ $dtfc_plugin = new datafeedCustomPlugin();
 $dtfc_plugin->register();
 $dtfc_plugin->dtfcTblCreate();
 $dtfc_plugin->insertNetworks();
+
 ?>

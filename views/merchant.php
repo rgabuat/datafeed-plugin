@@ -22,7 +22,7 @@
                     foreach($grouped as $key => $val) : 
                         foreach($val as $k => $vl)
                         {
-                            $merchant_cnt += $vl[0];
+                            // $merchant_cnt += $vl[0];
                             // echo '<pre>'; print_r($merch);
                             $total_product += $vl->product_count;
                         }
