@@ -7,3 +7,5 @@ function clean($string) {
  
     return preg_replace('/-+/', '-', $string); // Replaces multiple hyphens with single one.
  }
+
+

@@ -6,23 +6,23 @@
         <?php 
             $dtfc_plugin = new datafeedCustomPlugin();
             $dtfc = $dtfc_plugin->dftcFetchMerchants();
-            $merchs = $dtfc->merchants;
-            $grouped = $dtfc_plugin->array_group_by($dtfc->merchants,"source");
-            $total_product = 0;
-            $merchant_cnt = 0;
-
-            // echo '<pre>';
-            // print_r($grouped);
+            if(!empty($dtfc))
+            {
+                $merchs = $dtfc->merchants;
+                $grouped = $dtfc_plugin->array_group_by($dtfc->merchants,"source");
+                $total_product = 0;
+                $merchant_cnt = 0;
+            }
         ?>
 
         <table class="form-table">
             <tbody>
                 <?php 
-                
+                if(!empty($grouped)):
                     foreach($grouped as $key => $val) : 
                         foreach($val as $k => $vl)
                         {
-                            $merchant_cnt += $vl[0];
+                            // $merchant_cnt += $vl[0];
                             // echo '<pre>'; print_r($merch);
                             $total_product += $vl->product_count;
                         }
@@ -69,6 +69,13 @@
                     </td>
                 </tr>
                 <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td>
+                            No networks selected
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </form>
