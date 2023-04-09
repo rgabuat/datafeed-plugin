@@ -475,6 +475,8 @@ class datafeedCustomPlugin
     }
     
 
+
+
     function deactivate()
     {
         $timestamp = wp_next_scheduled('dtfc_update_networks');

@@ -8,6 +8,9 @@
         $dtfc = $dtfc_plugin->dtfcFetchNetworks();
         $datas = $dtfc_plugin->fetchNetworks();
 
+        // echo '<pre>';
+        
+        
         $grouped = $dtfc_plugin->array_group_by($dtfc->networks,"group");
             foreach($grouped as $key => $value) :
         ?>
