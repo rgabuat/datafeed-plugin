@@ -14,6 +14,7 @@ class datafeedCustomPlugin
         add_action('admin_enqueue_scripts',array($this,'enqueue'));
         add_action('admin_menu',array($this,'add_admin_pages'));
         add_action('admin_init',array($this,'registerCustomFields'));
+        add_filter( 'cron_schedules', array($this,'cron_interval'));
         add_filter("plugin_action_links_".$this->plugin, array($this,'settings_link'));
 
         if(wp_next_scheduled('dtfc_update_networks'))
@@ -251,7 +252,7 @@ class datafeedCustomPlugin
         {
             $checked_array = $_POST['nid']['ids'];
             $network_names = $_POST['network_name']['ids'];
-         
+
             foreach($network_names as $k => $v)
             {
                 if(in_array($k,$checked_array))
@@ -280,6 +281,10 @@ class datafeedCustomPlugin
                                 {
                                     $wpdb->insert($dtfcTble,$data);
                                 }
+                                else 
+                                {
+                                    $result = $wpdb->update( $dtfcTble, $data, ['nid' => $net_nid] );
+                                }
                             }
                         } 
                     }
@@ -289,7 +294,7 @@ class datafeedCustomPlugin
             if ($wpdb->last_error === '') 
             {
                 // Insertion was successful
-                echo '<script>alert("Data inserted successfully")</script>';
+                echo '<script>alert("Data successfully Updated")</script>';
             } 
             else 
             {
@@ -304,11 +309,19 @@ class datafeedCustomPlugin
     {
         if (!wp_next_scheduled('dtfc_update_networks')) 
         {
-            wp_schedule_event(time(), 'hourly', 'dtfc_update_networks');
+            wp_schedule_event(time(), 'custom', 'dtfc_update_networks');
         }
         flush_rewrite_rules();
     }
 
+    // Define the custom interval for the cronjob
+    function cron_interval( $schedules ) {
+        $schedules['custom'] = array(
+            'interval' => 259200, // 3 days in seconds
+            'display'  => __( 'Every 3 Days' ),
+        );
+        return $schedules;
+    }
 
     function updateNetworksTable()
     {
@@ -390,8 +403,6 @@ class datafeedCustomPlugin
 
     function dftcFetchMerchants()
     {
-
-
         if(!empty($this->fetchNetworks()))
         {
             $sources = [];
@@ -428,8 +439,15 @@ class datafeedCustomPlugin
             }
         }
     }
-    
 
+    function insertMerchants()
+    {
+        if(!empty($_POST['nid']))
+        {
+            
+        }
+    }
+    
     function array_group_by(array $array, $key)
     {
         if (!is_string($key) && !is_int($key) && !is_float($key) && !is_callable($key) ) {

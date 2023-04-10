@@ -38,19 +38,19 @@
                                 <span class="sep">/</span>
                                 <span><?= $total_product ?> products </span>
                             </div>
-                            <div class="merchants hidden network_<?= clean($key) ?>" >
+                            <div class="merchants hidden network_<?= clean($key) ?>" id="merchants_<?= $v->_id ?>" >
                                 <div class="merchant_actions">
 
                                 </div>
                                 <div class="dfrapi_panes">
-                                    <div class="drapi_pane_left">
+                                    <div class="dfrapi_pane_left">
                                         <div class="dfrapi_pane_title">
                                             <span>Merchants</span>
                                         </div>
                                         <div class="dfrapi_pane_content">
                                             <?php
                                                 foreach($val as $v): ?>
-                                                <div class="merchant" style="display:<?= $v->product_count == 0 ? 'none' : '' ?>">
+                                                <div class="merchant" id="merchant_id_<?= $v->_id ?>" style="display:<?= $v->product_count == 0 ? 'none' : '' ?>">
                                                     <div class="merchant_name">
                                                         <?= $v->name ?>
                                                     </div>
@@ -61,6 +61,13 @@
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <div class="dfrapi_pane_right">
+                                        <div class="dfrapi_pane_title">
+                                            <span>Selected Merchants</span>
+                                        </div>
+                                        <div class="dfrapi_pane_content">
                                         </div>
                                     </div>
                                 </div>
