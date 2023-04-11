@@ -444,7 +444,7 @@ class datafeedCustomPlugin
     {
         if(!empty($_POST['nid']))
         {
-            
+
         }
     }
     

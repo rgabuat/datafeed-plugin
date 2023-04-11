@@ -1,7 +1,6 @@
 <div class="wrap" id="dfrapi_merchants" >
     <h1>Select Merchants</h1>
     <?php settings_errors(); ?>
-
     <form method="post" action="">
         <?php 
             $dtfc_plugin = new datafeedCustomPlugin();
@@ -14,7 +13,6 @@
                 $merchant_cnt = 0;
             }
         ?>
-
         <table class="form-table">
             <tbody>
                 <?php 
@@ -26,6 +24,8 @@
                             // echo '<pre>'; print_r($merch);
                             $total_product += $vl->product_count;
                         }
+                        // echo '<pre>';
+                        // print_r($val);
                     ?>
                 <tr>
                     <th class="" style="display:none;">Merchants</th>
@@ -38,7 +38,7 @@
                                 <span class="sep">/</span>
                                 <span><?= $total_product ?> products </span>
                             </div>
-                            <div class="merchants hidden network_<?= clean($key) ?>" id="merchants_<?= $v->_id ?>" >
+                            <div class="merchants hidden network_<?= clean($key) ?>" id="merchants_for_nid_<?= $vl->_id ?>" >
                                 <div class="merchant_actions">
 
                                 </div>
