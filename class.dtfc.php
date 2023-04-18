@@ -232,6 +232,7 @@ class datafeedCustomPlugin
         {
             $dtfcQueryMerchant = "CREATE TABLE $dtfcTbleMerchant(
                     id int(10) NOT NULL AUTO_INCREMENT,
+                    mid int(10) DEFAULT '',
                     srcid VARCHAR(30) DEFAULT '',
                     merchant_name VARCHAR(100) DEFAULT '',
                     product_count VARCHAR(100) DEFAULT '',
@@ -442,12 +443,71 @@ class datafeedCustomPlugin
 
     function insertMerchants()
     {
-        if(!empty($_POST['nid']))
-        {
+        global $wpdb;
+        $dtfcTble = $wpdb->prefix."dtfc_merchants";
 
+        if(!empty($_POST['mid']))
+        {
+            $checked_array = $_POST['mid']['ids'];
+            $merchant_names = $_POST['merchant_name']['ids'];
+            
+            foreach($merchant_names as $k => $v)
+            {
+                if(in_array($k,$checked_array))
+                {
+                    $count = count($checked_array);
+                    if($_POST['mid']['ids'][$k] != FALSE)
+                    {
+                        $merch_id = $_POST['mid']['ids'][$k];
+                        $data = [
+                            'mid' => $merch_id,
+                            'srcid' => $_POST['network_id']['ids'][$k],
+                            'merchant_name' => $_POST['merchant_name']['ids'][$k],
+                            'product_count' => $_POST['merchant_prod_count']['ids'][$k],
+                        ];
+
+                        for($i=0;$i<$count;$i++)
+                        {
+                            if($merch_id != 0)
+                            {
+                                $id = $wpdb->get_row("SELECT * FROM $dtfcTble WHERE mid = $merch_id");
+                                if(!$id)
+                                {
+                                    $wpdb->insert($dtfcTble,$data);
+                                }
+                                else 
+                                {
+                                    $result = $wpdb->update( $dtfcTble, $data, ['mid' => $merch_id] );
+                                }
+                            }
+                        } 
+                    }
+                }
+            }
+           
+            if ($wpdb->last_error === '') 
+            {
+                // Insertion was successful
+                echo '<script>alert("Merchant successfully Updated")</script>';
+            } 
+            else 
+            {
+            // Insertion failed
+                echo 'Error inserting data: ' . $wpdb->last_error;
+            }
+        
         }
     }
     
+    function fetchMerchants()
+    {
+        global $wpdb;
+        $dtfcTble = $wpdb->prefix."dtfc_merchants";
+        $results = $wpdb->get_results("SELECT * FROM $dtfcTble");
+        
+        return $results;
+    }
+
     function array_group_by(array $array, $key)
     {
         if (!is_string($key) && !is_int($key) && !is_float($key) && !is_callable($key) ) {
@@ -493,8 +553,6 @@ class datafeedCustomPlugin
     }
     
 
-
-
     function deactivate()
     {
         $timestamp = wp_next_scheduled('dtfc_update_networks');
@@ -526,5 +584,5 @@ $dtfc_plugin = new datafeedCustomPlugin();
 $dtfc_plugin->register();
 $dtfc_plugin->dtfcTblCreate();
 $dtfc_plugin->insertNetworks();
-
+$dtfc_plugin->insertMerchants();
 ?>
