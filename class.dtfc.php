@@ -287,7 +287,19 @@ class datafeedCustomPlugin
                                     $result = $wpdb->update( $dtfcTble, $data, ['nid' => $net_nid] );
                                 }
                             }
-                        } 
+                        }
+
+                        $sql = "SELECT nid FROM $dtfcTble";
+                        $result = $wpdb->get_results($sql);
+
+                        foreach ($result as $row) 
+                        {
+                            $id = $row->nid;
+                            if (!in_array($id, $checked_array))
+                            {
+                                $wpdb->delete($dtfcTble, ['nid' => $id]);
+                            }
+                        }
                     }
                 }
             }
